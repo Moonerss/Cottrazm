@@ -21,10 +21,14 @@
 #' TumorST <- STPreProcess(InDir = InDir, OutDir = OutDir, Sample = Sample)
 #'
 STPreProcess <- function(InDir = InDir, Sample = Sample, OutDir = NULL) {
-  if (is.null(OutDir) == TRUE) {
-    OutDir <- paste(getwd(), "/", Sample, "/", sep = "")
-    dir.create(OutDir)
+
+  if (is.null(OutDir)) {
+    OutDir <- file.path(getwd(), Sample)
   }
+  if (!dir.exists(OutDir)) {
+    dir.create(OutDir, recursive = TRUE)
+  }
+
 
   # read files------
   aa_try <- try(
@@ -51,10 +55,10 @@ STPreProcess <- function(InDir = InDir, Sample = Sample, OutDir = NULL) {
   TumorST <- XF
 
   # QC----
-  dir.create(paste(OutDir, "QC", sep = ""))
+  dir.create(file.path(OutDir, '1_QC'), recursive = TRUE)
   TumorST[["Mito.percent"]] <- PercentageFeatureSet(TumorST, pattern = "^MT-")
 
-  pdf(paste(OutDir, "QC/Vlnplot.pdf", sep = ""), width = 6, height = 4)
+  pdf(file.path(OutDir, '1_QC', 'Vlnplot.pdf'), width = 6, height = 4)
   p <- VlnPlot(TumorST, features = c("nFeature_Spatial", "nCount_Spatial", "Mito.percent"), pt.size = 0, combine = F)
   for (i in 1:length(p)) {
     p[[i]] <- p[[i]] + NoLegend() + theme(axis.title.x = element_blank(), axis.text.x = element_text(angle = 0))
@@ -63,7 +67,7 @@ STPreProcess <- function(InDir = InDir, Sample = Sample, OutDir = NULL) {
   print(p)
   dev.off()
 
-  pdf(paste(OutDir, "QC/featurplot.pdf", sep = ""), width = 7, height = 7)
+  pdf(file.path(OutDir, '1_QC', 'featurplot.pdf'), width = 7, height = 7)
   p <- SpatialFeaturePlot(TumorST, features = c("nFeature_Spatial", "nCount_Spatial", "Mito.percent"), combine = F)
   for (i in 1:length(p)) {
     p[[i]] <- p[[i]] + theme(axis.title.x = element_blank(), axis.text.x = element_text(angle = 0))
@@ -72,7 +76,7 @@ STPreProcess <- function(InDir = InDir, Sample = Sample, OutDir = NULL) {
   dev.off()
 
   QCData <- TumorST@meta.data[, c("nCount_Spatial", "nFeature_Spatial", "Mito.percent")]
-  openxlsx::write.xlsx(QCData, paste(OutDir, "QC/QCData.xlsx", sep = ""), overwrite = T)
+  openxlsx::write.xlsx(QCData, file.path(OutDir, '1_QC', 'QCData.xlsx'), overwrite = T)
 
   return(TumorST)
 }

@@ -28,12 +28,16 @@ STCNVScore <- function(TumorST = TumorST,
                        OutDir = NULL,
                        Sample = Sample) {
 
-  if (is.null(OutDir) == TRUE) {
-    OutDir <- paste(getwd(), "/", Sample, "/", sep = "")
-    dir.create(OutDir)
+  if (is.null(OutDir)) {
+    OutDir <- file.path(getwd(), Sample)
+  }
+  if (!dir.exists(OutDir)) {
+    dir.create(OutDir, recursive = TRUE)
   }
 
-  cnv_outdir = paste(OutDir, "InferCNV/output_", assay, sep = "")
+  dir.create(file.path(OutDir, '4_CNVScore'), recursive = TRUE)
+
+  cnv_outdir <- file.path(OutDir, '3_InferCNV', paste0('output_', assay))
 
   ## CNV Label
   #cell_groupings <- read.table(paste(cnv_outdir,"/17_HMM_predHMMi6.rand_trees.hmm_mode-subclusters.cell_groupings",sep = ""),header = T)
@@ -42,7 +46,7 @@ STCNVScore <- function(TumorST = TumorST,
   infercnv.label <- as.data.frame(infercnv.label)
   infercnv.label <- rbind(infercnv.label,data.frame(row.names = rownames(TumorST@meta.data)[!rownames(TumorST@meta.data) %in% infercnv.label$row.names],
                                                     infercnv.label=rep("Normal",length(rownames(TumorST@meta.data)[!rownames(TumorST@meta.data) %in% infercnv.label$row.names]))))
-  
+
   #cell_groupings$class <- gsub("all_observations.all_observations.","",cell_groupings$cell_group_name)
 
   ## set cnv score of normal cluster == 0
@@ -81,13 +85,13 @@ STCNVScore <- function(TumorST = TumorST,
   )
 
   ## Plot CNV Label
-  pdf(paste(OutDir, Sample, "_cnv_label.pdf", sep = ""), width = 7, height = 7)
+  pdf(file.path(OutDir, '4_CNVScore', paste0(Sample, "_cnv_label.pdf")), width = 7, height = 7)
   p <- SpatialDimPlot(TumorST, group.by = "CNVLabel", cols = .cluster_cols, pt.size.factor = 1, alpha = 0.6) +
     scale_fill_manual(values = .cluster_cols)
   print(p)
   dev.off()
 
-  pdf(paste(OutDir, Sample, "_reduction_cnvlabel.pdf", sep = ""), width = 7, height = 7)
+  pdf(file.path(OutDir, '4_CNVScore', paste0(Sample, "_reduction_cnvlabel.pdf")), width = 7, height = 7)
   p <- DimPlot(TumorST, group.by = "CNVLabel", cols = .cluster_cols) +
     scale_fill_manual(values = .cluster_cols)
   print(p)
@@ -125,7 +129,7 @@ STCNVScore <- function(TumorST = TumorST,
   cell_scores_CNVA <- TumorST@meta.data[,c("CNVLabel","cnv_score")]
 
   ##plot cnv score
-  pdf(paste(OutDir,Sample, "_cnv_observation_vlnplot.pdf", sep = ""), width = 6, height = 4)
+  pdf(file.path(OutDir, '4_CNVScore', paste0(Sample, "_cnv_observation_vlnplot.pdf")), width = 6, height = 4)
   p <- ggplot(cell_scores_CNVA, aes(x = CNVLabel, y = cnv_score, fill = CNVLabel)) +
     geom_violin(alpha = 0.5) +
     geom_boxplot(stat = "boxplot", alpha = 1, width = .5, outlier.size = 0.5) +

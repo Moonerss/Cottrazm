@@ -43,7 +43,12 @@ get_recon_mtx <- function(TumorST = TumorST,
 
   # get st expr
   SubID <- rownames(TumorST@meta.data[TumorST@meta.data$Location %in% Location, ])
-  expr_values <- as.matrix(TumorST@assays$Spatial@counts)
+  if ( packageVersion('Seurat') >= '5.0.0') {
+    data <- GetAssayData(TumorST, assay = 'Spatial', layer = 'counts')
+  } else {
+    data <- GetAssayData(TumorST, assay = 'Spatial', slot = 'counts')
+  }
+  expr_values <- as.matrix(data)
   sub_expr <- expr_values[, SubID]
 
   # get intersect genes

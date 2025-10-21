@@ -30,10 +30,14 @@ BoundaryDefine <- function(TumorST = TumorST,
                            MalLabel = NULL,
                            OutDir = NULL,
                            Sample = Sample) {
-  if (is.null(OutDir) == TRUE) {
-    OutDir <- paste(getwd(), "/", Sample, "/", sep = "")
-    dir.create(OutDir)
+  if (is.null(OutDir)) {
+    OutDir <- file.path(getwd(), Sample)
   }
+  if (!dir.exists(OutDir)) {
+    dir.create(OutDir, recursive = TRUE)
+  }
+
+  dir.create(file.path(OutDir, '5_Boundary'), recursive = TRUE)
 
   # get UMAPembeddings
   UMAPembeddings <- as.data.frame(TumorST@reductions$umap@cell.embeddings %>% set_colnames(., c("x", "y")))
@@ -47,7 +51,7 @@ BoundaryDefine <- function(TumorST = TumorST,
   df_j <- find_neighbors(position = position, radius = dists$radius, method = "manhattan")
 
   # set primiary MalCellID by CNV
-  if (is.null(MalLabel) == TRUE) {
+  if (is.null(MalLabel)) {
     MalLabel <-
       order(unlist(lapply(
         split(
@@ -195,26 +199,26 @@ BoundaryDefine <- function(TumorST = TumorST,
         TumorSTn@meta.data$LabelNew <- factor(TumorSTn@meta.data$LabelNew, levels = c("Normal", "Bdy", "Mal", paste("Mal", c(1:n), sep = "")))
 
 
-        pdf(paste(OutDir, Sample, "_with_nbrs", n, ".pdf", sep = ""), width = 7, height = 7)
+        pdf(file.path(OutDir, '5_Boundary', paste0(Sample, "_with_nbrs", n, ".pdf")), width = 7, height = 7)
         p1 <- SpatialDimPlot(TumorSTn, cols = c("#33a02c", "#1f78b4", rev(c("#fef0d9", "#fdd49e", "#fdbb84", "#fc8d59", "#ef6548", "#d7301f", "#990000"))[1:n]), group.by = "Label")+
           scale_fill_manual(values = c("#33a02c", "#1f78b4", rev(c("#fef0d9", "#fdd49e", "#fdbb84", "#fc8d59", "#ef6548", "#d7301f", "#990000"))[1:n]))
         print(p1)
         dev.off()
 
-        pdf(paste(OutDir, Sample, "_reduction_with_nbrs", n, ".pdf", sep = ""), width = 7, height = 7)
+        pdf(file.path(OutDir, '5_Boundary', paste0(Sample, "_reduction_with_nbrs", n, ".pdf")), width = 7, height = 7)
         p2 <- DimPlot(TumorSTn, cols = c("#33a02c", "#1f78b4", rev(c("#fef0d9", "#fdd49e", "#fdbb84", "#fc8d59", "#ef6548", "#d7301f", "#990000"))[1:n]), group.by = "Label") +
           scale_fill_manual(values = c("#33a02c", "#1f78b4", rev(c("#fef0d9", "#fdd49e", "#fdbb84", "#fc8d59", "#ef6548", "#d7301f", "#990000"))[1:n]))+
           theme(axis.title = element_blank(), axis.ticks = element_blank(), axis.line = element_blank(), axis.text = element_blank()) + labs(title = NULL)
         print(p2)
         dev.off()
 
-        pdf(paste(OutDir, Sample, "_out_", n, ".pdf", sep = ""), width = 7, height = 7)
+        pdf(file.path(OutDir, '5_Boundary', paste0(Sample, "_out_", n, ".pdf")), width = 7, height = 7)
         p3 <- SpatialDimPlot(TumorSTn, group.by = "LabelNew", cols = c("#33a02c", "#1f78b4", rev(c("#fef0d9", "#fdd49e", "#fdbb84", "#fc8d59", "#ef6548", "#d7301f", "#990000"))[1:(n + 1)]))+
           scale_fill_manual(values = c("#33a02c", "#1f78b4", rev(c("#fef0d9", "#fdd49e", "#fdbb84", "#fc8d59", "#ef6548", "#d7301f", "#990000"))[1:(n + 1)]))
         print(p3)
         dev.off()
 
-        pdf(paste(OutDir, Sample, "_reduction_out_", n, ".pdf", sep = ""), width = 7, height = 7)
+        pdf(file.path(OutDir, '5_Boundary', paste0(Sample, "_reduction_out_", n, ".pdf")), width = 7, height = 7)
         p4 <- DimPlot(TumorSTn, group.by = "LabelNew", cols = c("#33a02c", "#1f78b4", rev(c("#fef0d9", "#fdd49e", "#fdbb84", "#fc8d59", "#ef6548", "#d7301f", "#990000"))[1:(n + 1)])) +
           scale_fill_manual(values = c("#33a02c", "#1f78b4", rev(c("#fef0d9", "#fdd49e", "#fdbb84", "#fc8d59", "#ef6548", "#d7301f", "#990000"))[1:(n + 1)]))+
           theme(axis.title = element_blank(), axis.ticks = element_blank(), axis.line = element_blank(), axis.text = element_blank()) + labs(title = NULL)

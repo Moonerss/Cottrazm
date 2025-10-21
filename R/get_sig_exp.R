@@ -17,7 +17,15 @@ get_sig_exp <- function(se.obj = WholeTissueSC,
                         DefineTypes = "Majortypes",
                         sig_scran = sig_scran # unique genes
 ) {
-  norm_exp <- 2^(se.obj@assays$RNA@data) - 1
+
+  if (packageVersion('Seurat') >= '5.0.0') {
+    data <- GetAssayData(se.obj, assay = 'RNA', layer = 'data')
+  } else {
+    data <- GetAssayData(se.obj, assay = 'RNA', slot = 'data')
+  }
+  norm_exp <- 2^(data) - 1
+
+
   id <- se.obj@meta.data[, DefineTypes]
   ExprSubset <- norm_exp[sig_scran, ]
   Sig_exp <- NULL

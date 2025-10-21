@@ -33,10 +33,14 @@ BoundaryPlot <- function(TumorSTn = TumorSTn,
                          TumorST = TumorST,
                          OutDir = OutDir,
                          Sample = Sample) {
-  if (is.null(OutDir) == TRUE) {
-    OutDir <- paste(getwd(), "/", Sample, "/", sep = "")
-    dir.create(OutDir)
+  if (is.null(OutDir)) {
+    OutDir <- file.path(getwd(), Sample)
   }
+  if (!dir.exists(OutDir)) {
+    dir.create(OutDir, recursive = TRUE)
+  }
+
+  dir.create(file.path(OutDir, '5_Boundary'), recursive = TRUE)
 
   # get position
   position <- TumorST@images$image@coordinates
@@ -70,13 +74,13 @@ BoundaryPlot <- function(TumorSTn = TumorSTn,
   TumorST@meta.data$Location <- factor(TumorST@meta.data$Location, levels = TumorST_DefineColors$Location)
   TumorST_DefineColors$colors <- as.character(TumorST_DefineColors$colors)
 
-  pdf(paste(OutDir, Sample, "_BoundaryDefine.pdf", sep = ""), width = 7, height = 7)
+  pdf(file.path(OutDir, '5_Boundary', paste0(Sample, "_BoundaryDefine.pdf")), width = 7, height = 7)
   p <- SpatialDimPlot(TumorST, group.by = "Location", cols = TumorST_DefineColors$colors) +
     scale_fill_manual(values = TumorST_DefineColors$colors )
   print(p)
   dev.off()
 
-  readr::write_rds(TumorST, paste(OutDir, Sample, "_BoundaryDefine.rds.gz", sep = ""), compress = "gz")
+  readr::write_rds(TumorST, file.path(OutDir, '5_Boundary', paste0(Sample, "_BoundaryDefine.rds.gz")), compress = "gz")
 
   return(TumorST)
 }

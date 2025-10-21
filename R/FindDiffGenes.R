@@ -33,7 +33,12 @@ FindDiffGenes <- function(TumorST = TumorST,
   }
 
   # prepare gene x cell dataframe
-  TumorSTm <- GetAssayData(TumorST, assay = assay, slot = "data")
+  if (packageVersion('Seurat') >= '5.0.0') {
+    TumorSTm <- GetAssayData(TumorST, assay = assay, layer = "data")
+  } else {
+    TumorSTm <- GetAssayData(TumorST, assay = assay, slot = "data")
+  }
+
   # TumorSTm <- apply(TumorSTm,2,function(x){signif(x,digits = 2)})
   TumorSTm <- data.frame(TumorSTm)
   TumorSTm <- TumorSTm %>% tibble::rownames_to_column(., var = "gene")

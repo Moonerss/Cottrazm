@@ -31,10 +31,14 @@ STModiCluster <- function(InDir = InDir,
                           TumorST = TumorST,
                           res = 1.5,
                           python_path = NULL) {
-  if (is.null(OutDir) == TRUE) {
-    OutDir <- paste(getwd(), "/", Sample, "/", sep = "")
-    dir.create(OutDir)
+  if (is.null(OutDir)) {
+    OutDir <- file.path(getwd(), Sample)
   }
+  if (!dir.exists(OutDir)) {
+    dir.create(OutDir, recursive = TRUE)
+  }
+
+  dir.create(file.path(OutDir, '2_Cluster'), recursive = TRUE)
 
   # Adjusted_expr_mtx
   if (!is.null(python_path)) {
@@ -42,7 +46,7 @@ STModiCluster <- function(InDir = InDir,
     script_path <- system.file("python/Rusedtile_V1.py", package = "Cottrazm")
     # script_path <- '/public/home/ezhao/qian_lab/code/python/ME_normalize.py'
     cmd <- paste(python_path, script_path)
-    arg <- paste('--INDIR', InDir, '--OUTDIR', OutDir, '--NAME', Sample)
+    arg <- paste('--INDIR', InDir, '--OUTDIR', file.path(OutDir, '2_Cluster'), '--NAME', Sample)
     system(paste(cmd, arg), wait = TRUE)
   } else {
     stop('Please set a python path')
@@ -60,7 +64,7 @@ STModiCluster <- function(InDir = InDir,
   # )
   # if (is(aa_try, "try-error")) {
   library(Matrix)
-  Adjusted_expr_mtx <- Matrix::readMM(paste(OutDir, Sample, "_raw_SME_normalizeA.mtx", sep = ""))
+  Adjusted_expr_mtx <- Matrix::readMM(file.path(OutDir, pasteo(Sample, "_raw_SME_normalizeA.mtx")))
   rownames(Adjusted_expr_mtx) <- colnames(TumorST)
   colnames(Adjusted_expr_mtx) <- rownames(TumorST)
   # } else {
@@ -99,14 +103,14 @@ STModiCluster <- function(InDir = InDir,
     "#aa8282", "#d4b7b7", "#8600bf", "#ba5ce3", "#808000",
     "#aeae5c", "#1e90ff", "#00bfff", "#56ff0d", "#ffff00"
   )
-  pdf(paste(OutDir, Sample, "_Spatial_SeuratCluster.pdf", sep = ""), width = 7, height = 7)
+  pdf(file.path(OutDir, '2_Cluster', paste0(Sample, "_Spatial_SeuratCluster.pdf", sep = "")), width = 7, height = 7)
   p <- SpatialDimPlot(TumorST, group.by = "seurat_clusters", cols = .cluster_cols, pt.size.factor = 1, alpha = 0.8) +
     scale_fill_manual(values = .cluster_cols)+
     labs(title = paste("Resolution = ", res, sep = ""))
   print(p)
   dev.off()
 
-  pdf(paste(OutDir, Sample, "_UMAP_SeuratCluster.pdf", sep = ""), width = 7, height = 7)
+  pdf(file.path(OutDir, '2_Cluster', paste0(Sample, "_UMAP_SeuratCluster.pdf", sep = "")), width = 7, height = 7)
   p <- DimPlot(TumorST, group.by = "seurat_clusters", cols = .cluster_cols) + labs(title = paste("Resolution = ", res, sep = "")) +
     scale_fill_manual(values = .cluster_cols)
   print(p)
@@ -116,7 +120,7 @@ STModiCluster <- function(InDir = InDir,
   Normalfeatures <- c("PTPRC","CD2","CD3D","CD3E","CD3G","CD5","CD7","CD79A",'MS4A1',"CD19")
   TumorST@meta.data$NormalScore <- apply(TumorST@assays$Morph@data[rownames(TumorST@assays$Morph@data) %in% Normalfeatures, ], 2, mean)
 
-  pdf(paste(OutDir, Sample, "_NormalScore.pdf", sep = ""), width = 6, height = 4)
+  pdf(file.path(OutDir, '2_Cluster', paste0(Sample, "_NormalScore.pdf")), width = 6, height = 4)
   p <- VlnPlot(TumorST, features = "NormalScore", pt.size = 0, group.by = "seurat_clusters", cols = .cluster_cols) +
     geom_boxplot() +
     geom_hline(yintercept = max(unlist(lapply(
@@ -138,8 +142,8 @@ STModiCluster <- function(InDir = InDir,
 
   # save CNV annotation file
   cellAnnotation <- data.frame(CellID = rownames(TumorST@meta.data), DefineTypes = TumorST@meta.data[, "seurat_clusters"])
-  dir.create(paste(OutDir, "InferCNV", sep = ""))
-  write.table(cellAnnotation, paste(OutDir, "InferCNV/CellAnnotation.txt", sep = ""), sep = "\t", row.names = F, col.names = F, quote = F)
+  dir.create(file.path(OutDir, "3_InferCNV", sep = ""))
+  write.table(cellAnnotation, file.path(OutDir, "3_InferCNV/CellAnnotation.txt"), sep = "\t", row.names = F, col.names = F, quote = F)
 
   return(TumorST)
 }

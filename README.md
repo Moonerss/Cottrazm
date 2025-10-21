@@ -1,5 +1,5 @@
 > [!NOTE]
-> This is a modified version to adapt to Seurat v5, adding and modifying some parameters to facilitate running and result management.
+> This is a modified version to adapt Seurat v5, adding and modifying some functions to facilitate running and result management.
 
 # Cottrazm: Construct Tumor Transition Zone (Boundary) Microenvironment based on spatial transcriptomics
 
