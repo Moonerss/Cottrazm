@@ -2,10 +2,10 @@ Package: Cottrazm
 Type: Package
 Title: Construct Tumor Transition Zone (Boundary) Microenvironment
 Version: 0.1.1
-Author:  Zhenzhen Xun, Xinyu Ding, and Youqiong Ye#
+Author: Zhenzhen Xun, Xinyu Ding, and Youqiong Ye#
 Maintainer: Zhenzhen Xun <vera-morland@sjtu.edu.cn>
 Description: Cottrazm is an R package to construct tumor transition zone (boundary) microenvironment of spatial transcriptomic (ST) data.
-License:  MIT + file LICENSE
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
@@ -17,3 +17,5 @@ Suggests:
     testthat (>= 3.0.0)
 VignetteBuilder: knitr
 Config/testthat/edition: 3
+Imports: 
+    ggplot2
