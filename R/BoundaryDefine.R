@@ -37,7 +37,9 @@ BoundaryDefine <- function(TumorST = TumorST,
     dir.create(OutDir, recursive = TRUE)
   }
 
-  dir.create(file.path(OutDir, '5_Boundary'), recursive = TRUE)
+  if (!dir.exists(file.path(OutDir, '5_Boundary'))) {
+    dir.create(file.path(OutDir, '5_Boundary'), recursive = TRUE)
+  }
 
   # get UMAPembeddings
   UMAPembeddings <- as.data.frame(TumorST@reductions$umap@cell.embeddings %>% set_colnames(., c("x", "y")))

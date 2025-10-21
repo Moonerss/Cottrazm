@@ -55,7 +55,9 @@ STPreProcess <- function(InDir = InDir, Sample = Sample, OutDir = NULL) {
   TumorST <- XF
 
   # QC----
-  dir.create(file.path(OutDir, '1_QC'), recursive = TRUE)
+  if (!dir.exists(file.path(OutDir, '1_QC'))) {
+    dir.create(file.path(OutDir, '1_QC'), recursive = TRUE)
+  }
   TumorST[["Mito.percent"]] <- PercentageFeatureSet(TumorST, pattern = "^MT-")
 
   pdf(file.path(OutDir, '1_QC', 'Vlnplot.pdf'), width = 6, height = 4)

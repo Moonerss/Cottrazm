@@ -38,7 +38,9 @@ STModiCluster <- function(InDir = InDir,
     dir.create(OutDir, recursive = TRUE)
   }
 
-  dir.create(file.path(OutDir, '2_Cluster'), recursive = TRUE)
+  if (!dir.exists(file.path(OutDir, '2_Cluster'))) {
+    dir.create(file.path(OutDir, '2_Cluster'), recursive = TRUE)
+  }
 
   # Adjusted_expr_mtx
   if (!is.null(python_path)) {
@@ -64,7 +66,7 @@ STModiCluster <- function(InDir = InDir,
   # )
   # if (is(aa_try, "try-error")) {
   library(Matrix)
-  Adjusted_expr_mtx <- Matrix::readMM(file.path(OutDir, paste0(Sample, "_raw_SME_normalizeA.mtx")))
+  Adjusted_expr_mtx <- Matrix::readMM(file.path(OutDir, '2_Cluster', paste0(Sample, "_raw_SME_normalizeA.mtx")))
   rownames(Adjusted_expr_mtx) <- colnames(TumorST)
   colnames(Adjusted_expr_mtx) <- rownames(TumorST)
   # } else {
@@ -103,14 +105,14 @@ STModiCluster <- function(InDir = InDir,
     "#aa8282", "#d4b7b7", "#8600bf", "#ba5ce3", "#808000",
     "#aeae5c", "#1e90ff", "#00bfff", "#56ff0d", "#ffff00"
   )
-  pdf(file.path(OutDir, '2_Cluster', paste0(Sample, "_Spatial_SeuratCluster.pdf", sep = "")), width = 7, height = 7)
+  pdf(file.path(OutDir, '2_Cluster', paste0(Sample, "_Spatial_SeuratCluster.pdf")), width = 7, height = 7)
   p <- SpatialDimPlot(TumorST, group.by = "seurat_clusters", cols = .cluster_cols, pt.size.factor = 1, alpha = 0.8) +
     scale_fill_manual(values = .cluster_cols)+
     labs(title = paste("Resolution = ", res, sep = ""))
   print(p)
   dev.off()
 
-  pdf(file.path(OutDir, '2_Cluster', paste0(Sample, "_UMAP_SeuratCluster.pdf", sep = "")), width = 7, height = 7)
+  pdf(file.path(OutDir, '2_Cluster', paste0(Sample, "_UMAP_SeuratCluster.pdf")), width = 7, height = 7)
   p <- DimPlot(TumorST, group.by = "seurat_clusters", cols = .cluster_cols) + labs(title = paste("Resolution = ", res, sep = "")) +
     scale_fill_manual(values = .cluster_cols)
   print(p)
@@ -142,7 +144,9 @@ STModiCluster <- function(InDir = InDir,
 
   # save CNV annotation file
   cellAnnotation <- data.frame(CellID = rownames(TumorST@meta.data), DefineTypes = TumorST@meta.data[, "seurat_clusters"])
-  dir.create(file.path(OutDir, "3_InferCNV", sep = ""))
+  if (!dir.exists(file.path(OutDir, '3_InferCNV'))) {
+    dir.create(file.path(OutDir, '3_InferCNV'), recursive = TRUE)
+  }
   write.table(cellAnnotation, file.path(OutDir, "3_InferCNV/CellAnnotation.txt"), sep = "\t", row.names = F, col.names = F, quote = F)
 
   return(TumorST)

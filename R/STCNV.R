@@ -38,7 +38,9 @@ STCNV <- function(TumorST = TumorST,
     dir.create(OutDir, recursive = TRUE)
   }
 
-  dir.create(file.path(OutDir, '3_InferCNV'), recursive = TRUE)
+  if (!dir.exists(file.path(OutDir, '3_InferCNV'))) {
+    dir.create(file.path(OutDir, '3_InferCNV'), recursive = TRUE)
+  }
 
   # Run CNV random tree model
   # generate matrix
@@ -50,7 +52,7 @@ STCNV <- function(TumorST = TumorST,
 
 
   # Creat infercnv objcter
-  annotation_file <- file.path(OutDir, "3_InferCNV/CellAnnotation.txt", sep = "")
+  annotation_file <- file.path(OutDir, "3_InferCNV/CellAnnotation.txt")
 
   NormalCluster <- levels(TumorST$seurat_clusters)[order(unlist(lapply(
     split(
@@ -74,7 +76,7 @@ STCNV <- function(TumorST = TumorST,
   # perform infercnv operations to reveal cnv signal
   infercnv_obj <- infercnv::run(infercnv_obj,
     cutoff = 0.1, # use 1 for smart-seq, 0.1 for 10x-genomics
-    out_dir = file.path(OutDir, "3_InferCNV/output_", assay, sep = ""), # output files
+    out_dir = file.path(OutDir, paste0("3_InferCNV/output_", assay)), # output files
     cluster_by_groups = F, # cluster or not
     analysis_mode = "subclusters",
     denoise = T,

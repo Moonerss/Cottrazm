@@ -35,13 +35,15 @@ STCNVScore <- function(TumorST = TumorST,
     dir.create(OutDir, recursive = TRUE)
   }
 
-  dir.create(file.path(OutDir, '4_CNVScore'), recursive = TRUE)
+  if (!dir.exists(file.path(OutDir, '4_CNVScore'))) {
+    dir.create(file.path(OutDir, '4_CNVScore'), recursive = TRUE)
+  }
 
   cnv_outdir <- file.path(OutDir, '3_InferCNV', paste0('output_', assay))
 
   ## CNV Label
   #cell_groupings <- read.table(paste(cnv_outdir,"/17_HMM_predHMMi6.rand_trees.hmm_mode-subclusters.cell_groupings",sep = ""),header = T)
-  cell_groupings <- read.tree(file = paste(cnv_outdir,"/infercnv.17_HMM_predHMMi6.rand_trees.hmm_mode-subclusters.observations_dendrogram.txt",sep = ""))
+  cell_groupings <- ape::read.tree(file = paste(cnv_outdir,"/infercnv.17_HMM_predHMMi6.rand_trees.hmm_mode-subclusters.observations_dendrogram.txt",sep = ""))
   infercnv.label <- dendextend::cutree(cell_groupings,k=8)
   infercnv.label <- as.data.frame(infercnv.label)
   infercnv.label <- rbind(infercnv.label,data.frame(row.names = rownames(TumorST@meta.data)[!rownames(TumorST@meta.data) %in% infercnv.label$row.names],

@@ -18,4 +18,6 @@ Suggests:
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 Imports: 
-    ggplot2
+    ape,
+    ggplot2,
+    magrittr
