@@ -13,6 +13,7 @@
 #' @param InDir Path to file contain Spaceranger out result
 #' @param Sample Name of your sample
 #' @param OutDir Path to file save figures and processed data
+#' @param python_path the path of python to run \code{stlearn} normalize
 #'
 #' @return A Seurat object with morphological adjusted expression matrix and determined clusters
 #' @export
