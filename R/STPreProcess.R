@@ -37,7 +37,11 @@ STPreProcess <- function(InDir = InDir, Sample = Sample, OutDir = NULL) {
     Xdata <- Xdata
   }
 
-  XF <- CreateSeuratObject(counts = Xdata, project = Sample, min.spots = 0, assay = "Spatial")
+  if (packageVersion('Seurat') >= '5.0.0') {
+    XF <- CreateSeuratObject(counts = Xdata, project = Sample, assay = "Spatial")
+  } else {
+    XF <- CreateSeuratObject(counts = Xdata, project = Sample, min.spots = 0, assay = "Spatial")
+  }
   # read image filesa
   Ximage <- Read10X_Image(image.dir = paste(InDir, "spatial", sep = ""))
   Seurat::DefaultAssay(Ximage) <- "Spatial"

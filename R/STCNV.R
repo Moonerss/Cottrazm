@@ -38,7 +38,12 @@ STCNV <- function(TumorST = TumorST,
 
   # Run CNV random tree model
   # generate matrix
-  matrix <- Seurat::GetAssayData(TumorST, slot = "counts", assay = assay) %>% as.matrix()
+  if (packageVersion('Seurat') >= '5.0.0') {
+    matrix <- Seurat::GetAssayData(TumorST, layer = "counts", assay = assay) %>% as.matrix()
+  } else {
+    matrix <- Seurat::GetAssayData(TumorST, slot = "counts", assay = assay) %>% as.matrix()
+  }
+
 
   # Creat infercnv objcter
   annotation_file <- paste(OutDir, "InferCNV/CellAnnotation.txt", sep = "")
@@ -73,6 +78,8 @@ STCNV <- function(TumorST = TumorST,
     tumor_subcluster_partition_method = "random_trees",
     HMM_type = "i6",
     BayesMaxPNormal = 0,
+    write_phylo = TRUE,
+    write_expr_matrix = TRUE,
     num_threads = num_threads
     #plot_probabilities = F,
     #save_rds = F,

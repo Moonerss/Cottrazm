@@ -28,38 +28,56 @@ STModiCluster <- function(InDir = InDir,
                           Sample = Sample,
                           OutDir = NULL,
                           TumorST = TumorST,
-                          res = 1.5) {
+                          res = 1.5,
+                          python_path = NULL) {
   if (is.null(OutDir) == TRUE) {
     OutDir <- paste(getwd(), "/", Sample, "/", sep = "")
     dir.create(OutDir)
   }
 
   # Adjusted_expr_mtx
-  reticulate::use_condaenv("TumorBoundary", required = TRUE)
-  reticulate::source_python(system.file("python/Rusedtile.py", package = "Cottrazm"))
-  Adjusted_expr_mtx <- ME_normalize(inDir = InDir, outDir = OutDir, sample = Sample)
+  if (!is.null(python_path)) {
+
+    script_path <- system.file("python/Rusedtile_V1.py", package = "Cottrazm")
+    # script_path <- '/public/home/ezhao/qian_lab/code/python/ME_normalize.py'
+    cmd <- paste(python_path, script_path)
+    arg <- paste('--INDIR', InDir, '--OUTDIR', OutDir, '--NAME', Sample)
+    system(paste(cmd, arg), wait = TRUE)
+  } else {
+    stop('Please set a python path')
+  }
+
+  # reticulate::use_condaenv("TumorBoundary", required = TRUE)
+  # reticulate::source_python(system.file("python/Rusedtile.py", package = "Cottrazm"))
+  # Adjusted_expr_mtx <- ME_normalize(inDir = InDir, outDir = OutDir, sample = Sample)
+
 
   # Create Morph seu.obj
-  aa_try <- try(
-    rownames(Adjusted_expr_mtx) <- colnames(TumorST@assays$Spatial@counts),
-    silent = T
-  )
-  if (is(aa_try, "try-error")) {
-    library(Matrix)
-    Adjusted_expr_mtx <- Matrix::readMM(paste(OutDir, Sample, "_raw_SME_normalizeA.mtx", sep = ""))
-    rownames(Adjusted_expr_mtx) <- colnames(TumorST@assays$Spatial@counts)
-    colnames(Adjusted_expr_mtx) <- rownames(TumorST@assays$Spatial@counts)
-  } else {
-    rownames(Adjusted_expr_mtx) <- colnames(TumorST@assays$Spatial@counts)
-    colnames(Adjusted_expr_mtx) <- rownames(TumorST@assays$Spatial@counts)
-  }
+  # aa_try <- try(
+  #   rownames(Adjusted_expr_mtx) <- colnames(TumorST),
+  #   silent = T
+  # )
+  # if (is(aa_try, "try-error")) {
+  library(Matrix)
+  Adjusted_expr_mtx <- Matrix::readMM(paste(OutDir, Sample, "_raw_SME_normalizeA.mtx", sep = ""))
+  rownames(Adjusted_expr_mtx) <- colnames(TumorST)
+  colnames(Adjusted_expr_mtx) <- rownames(TumorST)
+  # } else {
+  #   rownames(Adjusted_expr_mtx) <- colnames(TumorST)
+  #   colnames(Adjusted_expr_mtx) <- rownames(TumorST)
+  # }
 
   Adjusted_expr_mtxF <- t(as.matrix(Adjusted_expr_mtx))
   MorphMatirxSeurat <- CreateSeuratObject(counts = as(Adjusted_expr_mtxF,'sparseMatrix'))
 
   # Add morph feature as assay to TumorST
   MorphMatirxSeurat <- subset(MorphMatirxSeurat, cells = rownames(TumorST@meta.data))
-  TumorST@assays$Morph <- MorphMatirxSeurat@assays$RNA
+
+  if (packageVersion('Seurat') >= '5.0.0') {
+    TumorST[['Morph']] <- CreateAssayObject(counts = LayerData(MorphMatirxSeurat, assay = 'RNA', layer = 'counts'))
+  } else {
+    TumorST@assays$Morph <- MorphMatirxSeurat@assays$RNA
+  }
 
   # Use Morph as assay Cluster
   TumorST <- NormalizeData(TumorST, assay = "Morph")
