@@ -40,7 +40,9 @@ BoundaryPlot <- function(TumorSTn = TumorSTn,
     dir.create(OutDir, recursive = TRUE)
   }
 
-  dir.create(file.path(OutDir, '5_Boundary'), recursive = TRUE)
+  if (!dir.exists(file.path(OutDir, '5_Boundary'))) {
+    dir.create(file.path(OutDir, '5_Boundary'), recursive = TRUE)
+  }
 
   # get position
   position <- TumorST@images$image@coordinates

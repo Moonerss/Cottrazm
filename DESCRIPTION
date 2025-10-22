@@ -20,4 +20,5 @@ Config/testthat/edition: 3
 Imports: 
     ape,
     ggplot2,
-    magrittr
+    magrittr,
+    Seurat
