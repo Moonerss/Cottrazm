@@ -32,11 +32,11 @@ STPreProcess <- function(InDir = InDir, Sample = Sample, OutDir = NULL) {
 
   # read files------
   aa_try <- try(
-    Xdata <- Seurat::Read10X(data.dir = paste(InDir, "filtered_feature_bc_matrix", sep = "")),
+    Xdata <- Seurat::Read10X(data.dir = file.path(InDir, "filtered_feature_bc_matrix")),
     silent = T
   )
   if (is(aa_try, "try-error")) {
-    Xdata <- Seurat::Read10X_h5(filename = paste(InDir, "filtered_feature_bc_matrix.h5", sep = ""))
+    Xdata <- Seurat::Read10X_h5(filename = file.path(InDir, "filtered_feature_bc_matrix.h5"))
   } else {
     Xdata <- Xdata
   }
@@ -47,7 +47,7 @@ STPreProcess <- function(InDir = InDir, Sample = Sample, OutDir = NULL) {
     XF <- CreateSeuratObject(counts = Xdata, project = Sample, min.spots = 0, assay = "Spatial")
   }
   # read image filesa
-  Ximage <- Read10X_Image(image.dir = paste(InDir, "spatial", sep = ""))
+  Ximage <- Read10X_Image(image.dir = file.path(InDir, "spatial"))
   Seurat::DefaultAssay(Ximage) <- "Spatial"
   # link matrix and image file
   Ximage <- Ximage[colnames(XF)]
