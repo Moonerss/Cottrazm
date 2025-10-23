@@ -31,6 +31,12 @@ STModiCluster <- function(InDir = InDir,
                           TumorST = TumorST,
                           res = 1.5,
                           python_path = NULL) {
+
+  if (!file.exists(file.path(InDir, 'filtered_feature_bc_matrix.h5'))) {
+    stop('There is no `filtered_feature_bc_matrix.h5` file in `InDir`, please supply it !!!')
+  }
+
+
   if (is.null(OutDir)) {
     OutDir <- file.path(getwd(), Sample)
   }
@@ -48,7 +54,7 @@ STModiCluster <- function(InDir = InDir,
     script_path <- system.file("python/Rusedtile_V1.py", package = "Cottrazm")
     # script_path <- '/public/home/ezhao/qian_lab/code/python/ME_normalize.py'
     cmd <- paste(python_path, script_path)
-    arg <- paste('--INDIR', InDir, '--OUTDIR', file.path(OutDir, '2_Cluster'), '--NAME', Sample)
+    arg <- paste('--INDIR', normalizePath(InDir), '--OUTDIR', normalizePath(file.path(OutDir, '2_Cluster')), '--NAME', Sample)
     system(paste(cmd, arg), wait = TRUE)
   } else {
     stop('Please set a python path')
