@@ -15,15 +15,24 @@
 #' @param OutDir Path to file save figures and processed data
 #' @param python_path the path of python to run \code{stlearn} normalize
 #'
+#' @import Seurat
+#'
+#' @importFrom Matrix readMM
+#' @importFrom methods as
+#' @importFrom stats median
+#'
 #' @return A Seurat object with morphological adjusted expression matrix and determined clusters
 #' @export
 #'
 #' @examples
-#' InDir <- paste(system.file("extdata/outs", package = "Cottrazm"), "/", sep = "")
-#' Sample <- "CRC1"
-#' OutDir <- "YourPath/TumorBoundary/Fig/1.BoundaryDefine/CRC1/"
-#' TumorST <- STPreProcess(InDir = InDir, OutDir = OutDir, Sample = Sample)
-#' TumorST <- STModiCluster(InDir = InDir, Sample = Sample, OutDir = OutDir, TumorST = TumorST, res = 1.5)
+#' \dontrun{
+#'   InDir <- paste(system.file("extdata/outs", package = "Cottrazm"), "/", sep = "")
+#'   Sample <- "CRC1"
+#'   OutDir <- "YourPath/TumorBoundary/Fig/1.BoundaryDefine/CRC1/"
+#'   TumorST <- STPreProcess(InDir = InDir, OutDir = OutDir, Sample = Sample)
+#'   TumorST <- STModiCluster(InDir = InDir, Sample = Sample, OutDir = OutDir,
+#'                            TumorST = TumorST, res = 1.5)
+#' }
 #'
 STModiCluster <- function(InDir = InDir,
                           Sample = Sample,
@@ -50,7 +59,7 @@ STModiCluster <- function(InDir = InDir,
 
   # Adjusted_expr_mtx
   if (!is.null(python_path)) {
-
+    message('Adjust spatial feature expression use morphological information')
     script_path <- system.file("python/Rusedtile_V1.py", package = "Cottrazm")
     # script_path <- '/public/home/ezhao/qian_lab/code/python/ME_normalize.py'
     cmd <- paste(python_path, script_path)
@@ -71,7 +80,6 @@ STModiCluster <- function(InDir = InDir,
   #   silent = T
   # )
   # if (is(aa_try, "try-error")) {
-  library(Matrix)
   Adjusted_expr_mtx <- Matrix::readMM(file.path(OutDir, '2_Cluster', paste0(Sample, "_raw_SME_normalizeA.mtx")))
   rownames(Adjusted_expr_mtx) <- colnames(TumorST)
   colnames(Adjusted_expr_mtx) <- rownames(TumorST)
@@ -111,24 +119,19 @@ STModiCluster <- function(InDir = InDir,
     "#aa8282", "#d4b7b7", "#8600bf", "#ba5ce3", "#808000",
     "#aeae5c", "#1e90ff", "#00bfff", "#56ff0d", "#ffff00"
   )
-  pdf(file.path(OutDir, '2_Cluster', paste0(Sample, "_Spatial_SeuratCluster.pdf")), width = 7, height = 7)
   p <- SpatialDimPlot(TumorST, group.by = "seurat_clusters", cols = .cluster_cols, pt.size.factor = 1, alpha = 0.8) +
     scale_fill_manual(values = .cluster_cols)+
     labs(title = paste("Resolution = ", res, sep = ""))
-  print(p)
-  dev.off()
+  ggsave(p, filename = file.path(OutDir, '2_Cluster', paste0(Sample, "_Spatial_SeuratCluster.pdf")), width = 7, height = 7)
 
-  pdf(file.path(OutDir, '2_Cluster', paste0(Sample, "_UMAP_SeuratCluster.pdf")), width = 7, height = 7)
   p <- DimPlot(TumorST, group.by = "seurat_clusters", cols = .cluster_cols) + labs(title = paste("Resolution = ", res, sep = "")) +
     scale_fill_manual(values = .cluster_cols)
-  print(p)
-  dev.off()
+  ggsave(p, filename = file.path(OutDir, '2_Cluster', paste0(Sample, "_UMAP_SeuratCluster.pdf")), width = 7, height = 7)
 
   # Add ImmuneScore
   Normalfeatures <- c("PTPRC","CD2","CD3D","CD3E","CD3G","CD5","CD7","CD79A",'MS4A1',"CD19")
   TumorST@meta.data$NormalScore <- apply(TumorST@assays$Morph@data[rownames(TumorST@assays$Morph@data) %in% Normalfeatures, ], 2, mean)
 
-  pdf(file.path(OutDir, '2_Cluster', paste0(Sample, "_NormalScore.pdf")), width = 6, height = 4)
   p <- VlnPlot(TumorST, features = "NormalScore", pt.size = 0, group.by = "seurat_clusters", cols = .cluster_cols) +
     geom_boxplot() +
     geom_hline(yintercept = max(unlist(lapply(
@@ -136,8 +139,7 @@ STModiCluster <- function(InDir = InDir,
       function(test) median(test$NormalScore)
     ))), linetype = "dashed") +
     ggpubr::stat_compare_means() + NoLegend()
-  print(p)
-  dev.off()
+  ggsave(p, filename = file.path(OutDir, '2_Cluster', paste0(Sample, "_NormalScore.pdf")), width = 6, height = 4)
 
   NormalCluster <- levels(TumorST$seurat_clusters)[order(unlist(lapply(
     split(

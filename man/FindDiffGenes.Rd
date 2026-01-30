@@ -18,8 +18,10 @@ A list of data frame contain differential expressed genes, p-value, log2FC and a
 Find differential expressed genes in malignant (Mal) spots, boundary (Bdy) spots, and  non-malignant (nMal) spots
 }
 \examples{
-TumorST <- readr::read_rds("YourPath/TumorBoundary/1.BoundaryDefine/CRC1/TumorSTBoundaryDefine.rds.gz")
-assay <- "Spatial"
-DiffGenes <- FindDiffGenes(TumorST = TumorST, assay = assay)
+\dontrun{
+  TumorST <- readr::read_rds("YourPath/TumorSTBoundaryDefine.rds.gz")
+  assay <- "Spatial"
+  DiffGenes <- FindDiffGenes(TumorST = TumorST, assay = assay)
+}
 
 }

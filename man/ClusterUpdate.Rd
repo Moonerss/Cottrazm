@@ -12,7 +12,7 @@ ClusterUpdate(
   NormalCellID = NormalCellID,
   BdyCellID = BdyCellID,
   MalCellID = MalCellID,
-  x = n
+  x = 100
 )
 }
 \arguments{

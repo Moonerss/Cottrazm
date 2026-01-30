@@ -31,10 +31,7 @@
 #' @return A binary matrix features as row, cell types as column
 #' @export
 #'
-#' @examples
-#' enrich_matrix <- get_enrich_matrix(filter_sig = filter_sig,clustermarkers_list = clustermarkers_list)
-#'
-get_enrich_matrix <- function(filter_sig = filter_sig, clustermarkers_list = clustermarkers_list) {
+get_enrich_matrix <- function(filter_sig, clustermarkers_list) {
 
   # construct enrich matrix initial
   enrich_matrix <- matrix(0, nrow = dim(filter_sig)[1], ncol = dim(filter_sig)[2])

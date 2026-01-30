@@ -16,15 +16,19 @@
 #' @export
 #'
 #' @examples
-#' TumorST <- readr::read_rds("YourPath/TumorBoundary/1.BoundaryDefine/CRC1/TumorSTBoundaryDefine.rds.gz")
-#' DiffGenes <- FindDiffGenes(TumorST = TumorST, assay = "Spatial")
-#' DiffVolcanoplot(DiffGenes = DiffGenes, Location = "Bdy", cut_off_pvalue = 2, cut_off_logFC = 0.25, n = 10)
+#' \dontrun{
+#'   TumorST <- readr::read_rds("YourPath/TumorSTBoundaryDefine.rds.gz")
+#'   DiffGenes <- FindDiffGenes(TumorST = TumorST, assay = "Spatial")
+#'   DiffVolcanoplot(DiffGenes = DiffGenes, Location = "Bdy",
+#'                   cut_off_pvalue = 2, cut_off_logFC = 0.25, n = 10)
+#' }
 #'
 DiffVolcanoplot <- function(DiffGenes = DiffGenes,
                             Location = c("Mal", "Bdy", "nMal"),
                             cut_off_pvalue = 2,
                             cut_off_logFC = 0.25,
                             n = NULL) {
+  check_pkgs('ggrepel')
   if (is.null(n) == TRUE) {
     n <- 10
   }
@@ -35,18 +39,18 @@ DiffVolcanoplot <- function(DiffGenes = DiffGenes,
 
   dataset <- LocationDiff %>%
     tibble::rownames_to_column() %>%
-    set_colnames(., c("gene", colnames(LocationDiff)))
+    magrittr::set_colnames(c("gene", colnames(LocationDiff)))
   dataset$color <- ifelse(-log10(LocationDiff$FDR) < cut_off_pvalue | abs(LocationDiff$Diff) <= cut_off_logFC, "grey",
     ifelse(LocationDiff$Diff > 0, "Bdy", "Other")
   )
   datasetN <- dataset %>%
-    dplyr::group_by(color) %>%
-    dplyr::top_n(n, abs(Diff))
+    dplyr::group_by(.data$color) %>%
+    dplyr::top_n(n, abs(.data$Diff))
   datasetN <- datasetN[datasetN$color != "grey", ]
 
   # plot
-  p <- ggplot(dataset, aes(x = Diff, y = (-log10(pvalue)), color = color)) +
-    geom_point(aes(fill = color), size = 1) +
+  p <- ggplot(dataset, aes(x = .data$Diff, y = (-log10(.data$pvalue)), color = .data$color)) +
+    geom_point(aes(fill = .data$color), size = 1) +
     scale_color_manual(values = c("red", "grey", "blue")) +
     ggrepel::geom_text_repel(
       data = datasetN, aes(label = datasetN$Symbol), max.overlaps = getOption("ggrepel.max.overlaps", default = 100),
@@ -56,5 +60,6 @@ DiffVolcanoplot <- function(DiffGenes = DiffGenes,
     geom_hline(yintercept = cut_off_pvalue, lty = 4, col = "black", lwd = 0.8) +
     labs(x = "log2(FoldChange)", y = "-log10(pvalueue)") +
     theme(panel.background = element_rect(color = "black", fill = NA), legend.position = "bottom", legend.title = element_blank())
-  print(p)
+
+  return(p)
 }

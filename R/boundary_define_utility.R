@@ -1,7 +1,3 @@
-
-# BoundaryDefine utility
-
-
 #' Title get neighbors of spot
 #'
 #' get neighbor spots' id of MalSpotIDAdd
@@ -33,10 +29,10 @@ nbrs <- function(df_j = df_j, MalCellIDAdd = MalCellIDAdd, CellIDRaw = CellIDRaw
 #'
 compute_interspot_distances <- function(position, scale.factor = 1.05) {
   cols <- c("row", "col", "imagerow", "imagecol")
-  assertthat::assert_that(all(cols %in% colnames(position)))
+  stopifnot(all(cols %in% colnames(position)))
   dists <- list()
-  dists$xdist <- coef(lm(position$imagecol ~ position$col))[2]
-  dists$ydist <- coef(lm(position$imagerow ~ position$row))[2]
+  dists$xdist <- stats::coef(stats::lm(position$imagecol ~ position$col))[2]
+  dists$ydist <- stats::coef(stats::lm(position$imagerow ~ position$row))[2]
   dists$radius <- (abs(dists$xdist) + abs(dists$ydist)) * scale.factor
 
 
@@ -83,7 +79,7 @@ ClusterUpdate <- function(MalCellIDN = MalCellIDN,
                           NormalCellID = NormalCellID,
                           BdyCellID = BdyCellID,
                           MalCellID = MalCellID,
-                          x = n) {
+                          x = 100) {
   P <- lapply(MalCellIDN, function(i) {
     #cellspot <- position[i, ]$spot.ids # center malignant spot of hexagon system
     ncellID <- df_j[[i]] # neighbors of center malignant spot

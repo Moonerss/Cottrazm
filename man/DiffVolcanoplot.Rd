@@ -30,8 +30,11 @@ A ggplot object
 Draw a volcano plot of features in boundary defined ST data
 }
 \examples{
-TumorST <- readr::read_rds("YourPath/TumorBoundary/1.BoundaryDefine/CRC1/TumorSTBoundaryDefine.rds.gz")
-DiffGenes <- FindDiffGenes(TumorST = TumorST, assay = "Spatial")
-DiffVolcanoplot(DiffGenes = DiffGenes, Location = "Bdy", cut_off_pvalue = 2, cut_off_logFC = 0.25, n = 10)
+\dontrun{
+  TumorST <- readr::read_rds("YourPath/TumorSTBoundaryDefine.rds.gz")
+  DiffGenes <- FindDiffGenes(TumorST = TumorST, assay = "Spatial")
+  DiffVolcanoplot(DiffGenes = DiffGenes, Location = "Bdy",
+                  cut_off_pvalue = 2, cut_off_logFC = 0.25, n = 10)
+}
 
 }

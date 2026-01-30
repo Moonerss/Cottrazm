@@ -19,12 +19,16 @@
 #' @export
 #'
 #' @examples
-#' TumorST <- readr::read_rds("YourPath/TumorBoundary/1.BoundaryDefine/CRC1/TumorSTClustered.rds.gz")
-#' Sample <- "CRC1"
-#' OutDir <- "YourPath/TumorBoundary/Fig/1.BoundaryDefine/CRC1/"
-#' TumorST <- STCNVScore(TumorST = TumorST, assay = "Spatial", OutDir = OutDir, Sample = Sample)
-#' MalLabel <- c(1, 2)
-#' TumorSTn <- BoundaryDefine(TumorST = TumorST, MalLabel = MalLabel, OutDir = OutDir, Sample = Sample)
+#' \dontrun{
+#'   TumorST <- readr::read_rds("YourPath/TumorBoundary/1.BoundaryDefine/CRC1/TumorSTClustered.rds.gz")
+#'   Sample <- "CRC1"
+#'   OutDir <- "YourPath/TumorBoundary/Fig/1.BoundaryDefine/CRC1/"
+#'   TumorST <- STCNVScore(TumorST = TumorST, assay = "Spatial",
+#'                         OutDir = OutDir,Sample = Sample)
+#'   MalLabel <- c(1, 2)
+#'   TumorSTn <- BoundaryDefine(TumorST = TumorST, MalLabel = MalLabel,
+#'                              OutDir = OutDir, Sample = Sample)
+#' }
 #'
 BoundaryDefine <- function(TumorST = TumorST,
                            MalLabel = NULL,
@@ -42,7 +46,7 @@ BoundaryDefine <- function(TumorST = TumorST,
   }
 
   # get UMAPembeddings
-  UMAPembeddings <- as.data.frame(TumorST@reductions$umap@cell.embeddings %>% set_colnames(., c("x", "y")))
+  UMAPembeddings <- as.data.frame(TumorST@reductions$umap@cell.embeddings %>% magrittr::set_colnames(c("x", "y")))
   # get position
   slice <- names(TumorST@images)[1]
   position <- data.frame(TumorST@images[[slice]]@coordinates)
@@ -97,7 +101,7 @@ BoundaryDefine <- function(TumorST = TumorST,
       sub_MalCellID <- intersect(MalCellID, rownames(TumorST@meta.data[TumorST@meta.data$seurat_clusters == .x, ]))
       return(sub_MalCellID)
     })) %>%
-    dplyr::mutate(sub_CiMal = purrr::map(.x = sub_MalCellID, .f = function(.x) {
+    dplyr::mutate(sub_CiMal = purrr::map(.x = .data$sub_MalCellID, .f = function(.x) {
       sub_CiMal <- apply(UMAPembeddings[.x, ], 2, mean)
       return(sub_CiMal)
     }))
@@ -122,7 +126,7 @@ BoundaryDefine <- function(TumorST = TumorST,
     ifelse(length(df_j[[name]][df_j[[name]] %in% MalCellIDsi]) == 0, name, NA)
   }) %>%
     unlist() %>%
-    na.omit()
+    stats::na.omit()
 
   BdyCellID <- NULL
 
@@ -200,32 +204,23 @@ BoundaryDefine <- function(TumorST = TumorST,
         TumorSTn@meta.data$LabelNew <- Clustern$Location[match(rownames(TumorSTn@meta.data), as.character(Clustern$CellID))]
         TumorSTn@meta.data$LabelNew <- factor(TumorSTn@meta.data$LabelNew, levels = c("Normal", "Bdy", "Mal", paste("Mal", c(1:n), sep = "")))
 
-
-        pdf(file.path(OutDir, '5_Boundary', paste0(Sample, "_with_nbrs", n, ".pdf")), width = 7, height = 7)
         p1 <- SpatialDimPlot(TumorSTn, cols = c("#33a02c", "#1f78b4", rev(c("#fef0d9", "#fdd49e", "#fdbb84", "#fc8d59", "#ef6548", "#d7301f", "#990000"))[1:n]), group.by = "Label")+
           scale_fill_manual(values = c("#33a02c", "#1f78b4", rev(c("#fef0d9", "#fdd49e", "#fdbb84", "#fc8d59", "#ef6548", "#d7301f", "#990000"))[1:n]))
-        print(p1)
-        dev.off()
+        ggsave(p1, filename = file.path(OutDir, '5_Boundary', paste0(Sample, "_with_nbrs", n, ".pdf")), width = 7, height = 7)
 
-        pdf(file.path(OutDir, '5_Boundary', paste0(Sample, "_reduction_with_nbrs", n, ".pdf")), width = 7, height = 7)
         p2 <- DimPlot(TumorSTn, cols = c("#33a02c", "#1f78b4", rev(c("#fef0d9", "#fdd49e", "#fdbb84", "#fc8d59", "#ef6548", "#d7301f", "#990000"))[1:n]), group.by = "Label") +
           scale_fill_manual(values = c("#33a02c", "#1f78b4", rev(c("#fef0d9", "#fdd49e", "#fdbb84", "#fc8d59", "#ef6548", "#d7301f", "#990000"))[1:n]))+
           theme(axis.title = element_blank(), axis.ticks = element_blank(), axis.line = element_blank(), axis.text = element_blank()) + labs(title = NULL)
-        print(p2)
-        dev.off()
+        ggsave(p2, filename = file.path(OutDir, '5_Boundary', paste0(Sample, "_reduction_with_nbrs", n, ".pdf")), width = 7, height = 7)
 
-        pdf(file.path(OutDir, '5_Boundary', paste0(Sample, "_out_", n, ".pdf")), width = 7, height = 7)
         p3 <- SpatialDimPlot(TumorSTn, group.by = "LabelNew", cols = c("#33a02c", "#1f78b4", rev(c("#fef0d9", "#fdd49e", "#fdbb84", "#fc8d59", "#ef6548", "#d7301f", "#990000"))[1:(n + 1)]))+
           scale_fill_manual(values = c("#33a02c", "#1f78b4", rev(c("#fef0d9", "#fdd49e", "#fdbb84", "#fc8d59", "#ef6548", "#d7301f", "#990000"))[1:(n + 1)]))
-        print(p3)
-        dev.off()
+        ggsave(p3, filename = file.path(OutDir, '5_Boundary', paste0(Sample, "_out_", n, ".pdf")), width = 7, height = 7)
 
-        pdf(file.path(OutDir, '5_Boundary', paste0(Sample, "_reduction_out_", n, ".pdf")), width = 7, height = 7)
         p4 <- DimPlot(TumorSTn, group.by = "LabelNew", cols = c("#33a02c", "#1f78b4", rev(c("#fef0d9", "#fdd49e", "#fdbb84", "#fc8d59", "#ef6548", "#d7301f", "#990000"))[1:(n + 1)])) +
           scale_fill_manual(values = c("#33a02c", "#1f78b4", rev(c("#fef0d9", "#fdd49e", "#fdbb84", "#fc8d59", "#ef6548", "#d7301f", "#990000"))[1:(n + 1)]))+
           theme(axis.title = element_blank(), axis.ticks = element_blank(), axis.line = element_blank(), axis.text = element_blank()) + labs(title = NULL)
-        print(p4)
-        dev.off()
+        ggsave(p4, filename = file.path(OutDir, '5_Boundary', paste0(Sample, "_reduction_out_", n, ".pdf")), width = 7, height = 7)
 
         MalCellID <- rownames(TumorSTn@meta.data[TumorSTn@meta.data$LabelNew %in% c("Mal", paste("Mal", c(1:n), sep = "")), ])
         MalCellIDN <- rownames(TumorSTn@meta.data[TumorSTn@meta.data$LabelNew %in% paste("Mal", n, sep = ""), ])

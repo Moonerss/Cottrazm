@@ -13,9 +13,11 @@
 #' @export
 #'
 #' @examples
-#' TumorST <- readr::read_rds("YourPath/TumorBoundary/1.BoundaryDefine/CRC1/TumorSTBoundaryDefine.rds.gz")
-#' assay <- "Spatial"
-#' DiffGenes <- FindDiffGenes(TumorST = TumorST, assay = assay)
+#' \dontrun{
+#'   TumorST <- readr::read_rds("YourPath/TumorSTBoundaryDefine.rds.gz")
+#'   assay <- "Spatial"
+#'   DiffGenes <- FindDiffGenes(TumorST = TumorST, assay = assay)
+#' }
 #'
 FindDiffGenes <- function(TumorST = TumorST,
                           assay = c("Morph", "Spatial")) {
@@ -24,7 +26,7 @@ FindDiffGenes <- function(TumorST = TumorST,
   }
 
   my.t.test <- function(...) {
-    obj <- try(t.test(...), silent = TRUE)
+    obj <- try(stats::t.test(...), silent = TRUE)
     if (is(obj, "try-error")) {
       return(NA)
     } else {
@@ -41,7 +43,7 @@ FindDiffGenes <- function(TumorST = TumorST,
 
   # TumorSTm <- apply(TumorSTm,2,function(x){signif(x,digits = 2)})
   TumorSTm <- data.frame(TumorSTm)
-  TumorSTm <- TumorSTm %>% tibble::rownames_to_column(., var = "gene")
+  TumorSTm <- TumorSTm %>% tibble::rownames_to_column(var = "gene")
   colnames(TumorSTm) <- c("gene", as.character(TumorST$Location))
 
   # prepare majortypes-colnames df
@@ -64,7 +66,7 @@ FindDiffGenes <- function(TumorST = TumorST,
       data.frame() # Welch t-test
     DiffGenes$Symbol <- TumorSTm$gene
     DiffGenes <- DiffGenes[!is.na(DiffGenes$pvalue), ]
-    DiffGenes$FDR <- p.adjust(DiffGenes$pvalue, method = "fdr")
+    DiffGenes$FDR <- stats::p.adjust(DiffGenes$pvalue, method = "fdr")
     return(DiffGenes)
   })
   return(DiffGenes)

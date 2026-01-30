@@ -1,8 +1,3 @@
-# source('R/boundary_define_settings.R')
-# InDir = paste(system.file("extdata/outs",package = "Cottrazm"),"/",sep = "")
-# Sample = "CRC1"
-# OutDir = "YourPath/TumorBoundary/Fig/1.BoundaryDefine/CRC1/"
-
 #' Title ST data preprocess
 #'
 #' read ST raw data and quality control
@@ -11,14 +6,21 @@
 #' @param Sample Name of your sample
 #' @param OutDir Path to file save figures and processed data
 #'
+#' @import Seurat
+#' @import ggplot2
+#' @importFrom methods is
+#' @importFrom utils packageVersion write.table
+#'
 #' @return A Seurat object
 #' @export
 #'
 #' @examples
-#' InDir <- paste(system.file("extdata/outs", package = "Cottrazm"), "/", sep = "")
-#' Sample <- "CRC1"
-#' OutDir <- "YourPath/TumorBoundary/Fig/1.BoundaryDefine/CRC1/"
-#' TumorST <- STPreProcess(InDir = InDir, OutDir = OutDir, Sample = Sample)
+#' \dontrun{
+#'   InDir <- paste(system.file("extdata/outs", package = "Cottrazm"), "/", sep = "")
+#'   Sample <- "CRC1"
+#'   OutDir <- "YourPath/TumorBoundary/Fig/1.BoundaryDefine/CRC1/"
+#'   TumorST <- STPreProcess(InDir = InDir, OutDir = OutDir, Sample = Sample)
+#' }
 #'
 STPreProcess <- function(InDir = InDir, Sample = Sample, OutDir = NULL) {
 
@@ -48,7 +50,7 @@ STPreProcess <- function(InDir = InDir, Sample = Sample, OutDir = NULL) {
   }
   # read image filesa
   Ximage <- Read10X_Image(image.dir = file.path(InDir, "spatial"))
-  Seurat::DefaultAssay(Ximage) <- "Spatial"
+  DefaultAssay(Ximage) <- "Spatial"
   # link matrix and image file
   Ximage <- Ximage[colnames(XF)]
   XF[["image"]] <- Ximage
@@ -60,25 +62,23 @@ STPreProcess <- function(InDir = InDir, Sample = Sample, OutDir = NULL) {
   }
   TumorST[["Mito.percent"]] <- PercentageFeatureSet(TumorST, pattern = "^MT-")
 
-  pdf(file.path(OutDir, '1_QC', 'Vlnplot.pdf'), width = 6, height = 4)
   p <- VlnPlot(TumorST, features = c("nFeature_Spatial", "nCount_Spatial", "Mito.percent"), pt.size = 0, combine = F)
   for (i in 1:length(p)) {
     p[[i]] <- p[[i]] + NoLegend() + theme(axis.title.x = element_blank(), axis.text.x = element_text(angle = 0))
   }
   p <- cowplot::plot_grid(plotlist = p, ncol = 3)
-  print(p)
-  dev.off()
+  ggsave(p, filename = file.path(OutDir, '1_QC', 'Vlnplot.pdf'), width = 6, height = 4)
 
-  pdf(file.path(OutDir, '1_QC', 'featurplot.pdf'), width = 7, height = 7)
   p <- SpatialFeaturePlot(TumorST, features = c("nFeature_Spatial", "nCount_Spatial", "Mito.percent"), combine = F)
   for (i in 1:length(p)) {
     p[[i]] <- p[[i]] + theme(axis.title.x = element_blank(), axis.text.x = element_text(angle = 0))
   }
-  print(cowplot::plot_grid(plotlist = p, ncol = 3))
-  dev.off()
+  p <- cowplot::plot_grid(plotlist = p, ncol = 3)
+  ggsave(p, filename = file.path(OutDir, '1_QC', 'featurplot.pdf'), width = 7, height = 7)
+
 
   QCData <- TumorST@meta.data[, c("nCount_Spatial", "nFeature_Spatial", "Mito.percent")]
-  openxlsx::write.xlsx(QCData, file.path(OutDir, '1_QC', 'QCData.xlsx'), overwrite = T)
+  write.table(QCData, sep = '\t', row.names = FALSE, quote = F, file = file.path(OutDir, '1_QC', 'QCData.tsv'))
 
   return(TumorST)
 }

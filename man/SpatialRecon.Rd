@@ -4,13 +4,7 @@
 \alias{SpatialRecon}
 \title{Title Reconstruct of spatial tumor micro environment at sub-spot level}
 \usage{
-SpatialRecon(
-  TumorST = TumorST,
-  sig_exp = sig_exp,
-  clustermarkers_list = clustermarkers_list,
-  DeconData = DeconData,
-  Location = NULL
-)
+SpatialRecon(TumorST, sig_exp, clustermarkers_list, DeconData, Location)
 }
 \arguments{
 \item{TumorST}{A seurat object with defined malignant (Mal) spots, boundary (Bdy) spots, and non-malignant (nMal) spots}
@@ -30,10 +24,12 @@ A reconstructed Seurat object of ST tumor data
 Reconstruct spatial tumor micro environment at sub-spot level using spot deconvolution result and scRNAseq data
 }
 \examples{
-TumorST <- readr::read_rds("YourPath/TumorBoundary/1.BoundaryDefine/CRC1/TumorSTBoundaryDefine.rds.gz")
-sig_exp <- readr::read_rds("YourPath/sig_exp.rds.gz")
-clustermarkers_list <- readr::read_rds("YourPath/clustermarkers_list.rds.gz")
-DeconData <- oepnxlsx::read.xlsx(system.file("extdata/DeconData.xlsx", package = "Cottrazm"))
-TumorSTSub <- SpatialRecon(TumorST = TumorST, sig_exp = sig_exp, clustermarkers_list = clustermarkers_list, DeconData = DeconData, Location = "Bdy")
+\dontrun{
+  TumorST <- readr::read_rds("YourPath/TumorSTBoundaryDefine.rds.gz")
+  sig_exp <- readr::read_rds("YourPath/sig_exp.rds.gz")
+  clustermarkers_list <- readr::read_rds("YourPath/clustermarkers_list.rds.gz")
+  DeconData <- oepnxlsx::read.xlsx(system.file("extdata/DeconData.xlsx", package = "Cottrazm"))
+  TumorSTSub <- SpatialRecon(TumorST, sig_exp, clustermarkers_list, DeconData, Location = "Bdy")
+}
 
 }

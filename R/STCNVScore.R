@@ -13,15 +13,20 @@
 #' @param Sample Name of your sample
 #' @param assay Name of assay uesed in infercnv
 #'
+#' @importFrom utils read.table
+#'
 #' @return A Seurat object of ST data with CNV sub-clusters and CNV scores
 #' @export
 #'
 #' @examples
-#' TumorST <- readr::read_rds("YourPath/TumorBoundary/1.BoundaryDefine/CRC1/TumorSTClustered.rds.gz")
-#' OutDir <- "YourPath/TumorBoundary/Fig/1.BoundaryDefine/CRC1/"
-#' Sample <- "CRC1"
-#' assay = "Spatial"
-#' TumorST <- STCNVScore(TumorST = TumorST, assay = assay, OutDir = OutDir, Sample = Sample)
+#' \dontrun{
+#'   TumorST <- readRDS("YourPath/TumorBoundary/1.BoundaryDefine/CRC1/TumorSTClustered.rds.gz")
+#'   OutDir <- "YourPath/TumorBoundary/Fig/1.BoundaryDefine/CRC1/"
+#'   Sample <- "CRC1"
+#'   assay = "Spatial"
+#'   TumorST <- STCNVScore(TumorST = TumorST, assay = assay,
+#'                         OutDir = OutDir, Sample = Sample)
+#' }
 #'
 STCNVScore <- function(TumorST = TumorST,
                        assay = c("Saptial","Morph"),
@@ -87,17 +92,13 @@ STCNVScore <- function(TumorST = TumorST,
   )
 
   ## Plot CNV Label
-  pdf(file.path(OutDir, '4_CNVScore', paste0(Sample, "_cnv_label.pdf")), width = 7, height = 7)
   p <- SpatialDimPlot(TumorST, group.by = "CNVLabel", cols = .cluster_cols, pt.size.factor = 1, alpha = 0.6) +
     scale_fill_manual(values = .cluster_cols)
-  print(p)
-  dev.off()
+  ggsave(p, filename = file.path(OutDir, '4_CNVScore', paste0(Sample, "_cnv_label.pdf")), width = 7, height = 7)
 
-  pdf(file.path(OutDir, '4_CNVScore', paste0(Sample, "_reduction_cnvlabel.pdf")), width = 7, height = 7)
   p <- DimPlot(TumorST, group.by = "CNVLabel", cols = .cluster_cols) +
     scale_fill_manual(values = .cluster_cols)
-  print(p)
-  dev.off()
+  ggsave(p, filename = file.path(OutDir, '4_CNVScore', paste0(Sample, "_reduction_cnvlabel.pdf")), width = 7, height = 7)
 
   ## CNV Score
   #cell_gene_state <- read.table(paste(cnv_outdir,'/17_HMM_predHMMi6.rand_trees.hmm_mode-subclusters.pred_cnv_genes.dat',sep = ""),header = T)
@@ -122,7 +123,7 @@ STCNVScore <- function(TumorST = TumorST,
 
   cnv_score_tableA <- abs(cnv_score_table-3)
 
-  cell_scores_CNV <- as.data.frame(colSums(cnv_score_tableA)) %>% set_colnames(.,c('cnv_score'))
+  cell_scores_CNV <- as.data.frame(colSums(cnv_score_tableA)) %>% magrittr::set_colnames(c('cnv_score'))
   rownames(cell_scores_CNV) <- gsub("\\.",'-',rownames(cell_scores_CNV))
 
   TumorST@meta.data$cnv_score <- cell_scores_CNV$cnv_score[match(rownames(TumorST@meta.data),
@@ -131,8 +132,7 @@ STCNVScore <- function(TumorST = TumorST,
   cell_scores_CNVA <- TumorST@meta.data[,c("CNVLabel","cnv_score")]
 
   ##plot cnv score
-  pdf(file.path(OutDir, '4_CNVScore', paste0(Sample, "_cnv_observation_vlnplot.pdf")), width = 6, height = 4)
-  p <- ggplot(cell_scores_CNVA, aes(x = CNVLabel, y = cnv_score, fill = CNVLabel)) +
+  p <- ggplot(cell_scores_CNVA, aes(x = .data$CNVLabel, y = .data$cnv_score, fill = .data$CNVLabel)) +
     geom_violin(alpha = 0.5) +
     geom_boxplot(stat = "boxplot", alpha = 1, width = .5, outlier.size = 0.5) +
     labs(y = "CNV_scores") +
@@ -145,8 +145,7 @@ STCNVScore <- function(TumorST = TumorST,
     ) +
     labs(title = "CNV Scores") +
     NoLegend()
-  print(p)
-  dev.off()
+  ggsave(p, filename = file.path(OutDir, '4_CNVScore', paste0(Sample, "_cnv_observation_vlnplot.pdf")), width = 6, height = 4)
 
   return(TumorST)
 }

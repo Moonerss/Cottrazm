@@ -20,14 +20,18 @@
 #' @export
 #'
 #' @examples
-#'
-#' Sample <- "CRC1"
-#' OutDir <- "YourPath/TumorBoundary/Fig/1.BoundaryDefine/CRC1/"
-#' TumorST <- readr::read_rds("YourPath/TumorBoundary/1.BoundaryDefine/CRC1/TumorSTClustered.rds.gz")
-#' TumorST <- STCNVScore(TumorST = TumorST, assay = "Spatial", OutDir = OutDir, Sample = Sample)
-#' MalLabel <- c(1, 2)
-#' TumorSTn <- BoundaryDefine(TumorST = TumorST, MalLabel = MalLabel, OutDir = OutDir, Sample = Sample)
-#' TumorST <- BoundaryPlot(TumorSTn = TumorSTn, TumorST = TumorST, OutDir = OutDir, Sample = Sample)
+#' \dontrun{
+#'   Sample <- "CRC1"
+#'   OutDir <- "YourPath/TumorBoundary/Fig/1.BoundaryDefine/CRC1/"
+#'   TumorST <- readr::read_rds("YourPath/TumorBoundary/1.BoundaryDefine/CRC1/TumorSTClustered.rds.gz")
+#'   TumorST <- STCNVScore(TumorST = TumorST, assay = "Spatial",
+#'                         OutDir = OutDir, Sample = Sample)
+#'   MalLabel <- c(1, 2)
+#'   TumorSTn <- BoundaryDefine(TumorST = TumorST, MalLabel = MalLabel,
+#'                              OutDir = OutDir, Sample = Sample)
+#'   TumorST <- BoundaryPlot(TumorSTn = TumorSTn, TumorST = TumorST,
+#'                           OutDir = OutDir, Sample = Sample)
+#' }
 #'
 BoundaryPlot <- function(TumorSTn = TumorSTn,
                          TumorST = TumorST,
@@ -57,7 +61,7 @@ BoundaryPlot <- function(TumorSTn = TumorSTn,
 
   Normal_Bdy_barcode <- unique(unlist(nbrs(df_j = df_j, MalCellIDAdd = Mal_barcode, CellIDRaw = c(Bdy_barcode, Mal_barcode))))
 
-  nMal_barcode <- rownames(TumorST@meta.data) %>% .[!. %in% c(Mal_barcode, Bdy_barcode, Normal_Bdy_barcode)]
+  nMal_barcode <- rownames(TumorST@meta.data) %>% .data[!.data %in% c(Mal_barcode, Bdy_barcode, Normal_Bdy_barcode)]
 
   Barcode_Ann <- data.frame(
     barcode = c(Mal_barcode, Bdy_barcode, Normal_Bdy_barcode, nMal_barcode),
@@ -76,13 +80,11 @@ BoundaryPlot <- function(TumorSTn = TumorSTn,
   TumorST@meta.data$Location <- factor(TumorST@meta.data$Location, levels = TumorST_DefineColors$Location)
   TumorST_DefineColors$colors <- as.character(TumorST_DefineColors$colors)
 
-  pdf(file.path(OutDir, '5_Boundary', paste0(Sample, "_BoundaryDefine.pdf")), width = 7, height = 7)
   p <- SpatialDimPlot(TumorST, group.by = "Location", cols = TumorST_DefineColors$colors) +
     scale_fill_manual(values = TumorST_DefineColors$colors )
-  print(p)
-  dev.off()
+  ggsave(p, filename = file.path(OutDir, '5_Boundary', paste0(Sample, "_BoundaryDefine.pdf")), width = 7, height = 7)
 
-  readr::write_rds(TumorST, file.path(OutDir, '5_Boundary', paste0(Sample, "_BoundaryDefine.rds.gz")), compress = "gz")
+  saveRDS(TumorST, file.path(OutDir, '5_Boundary', paste0(Sample, "_BoundaryDefine.rds.gz")), compress = "gz")
 
   return(TumorST)
 }

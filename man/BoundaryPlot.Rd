@@ -27,13 +27,17 @@ A Seurat object with defined malignant (Mal) spots, boundary (Bdy) spots, and no
 Visualize boundary define results of ST data
 }
 \examples{
-
-Sample <- "CRC1"
-OutDir <- "YourPath/TumorBoundary/Fig/1.BoundaryDefine/CRC1/"
-TumorST <- readr::read_rds("YourPath/TumorBoundary/1.BoundaryDefine/CRC1/TumorSTClustered.rds.gz")
-TumorST <- STCNVScore(TumorST = TumorST, assay = "Spatial", OutDir = OutDir, Sample = Sample)
-MalLabel <- c(1, 2)
-TumorSTn <- BoundaryDefine(TumorST = TumorST, MalLabel = MalLabel, OutDir = OutDir, Sample = Sample)
-TumorST <- BoundaryPlot(TumorSTn = TumorSTn, TumorST = TumorST, OutDir = OutDir, Sample = Sample)
+\dontrun{
+  Sample <- "CRC1"
+  OutDir <- "YourPath/TumorBoundary/Fig/1.BoundaryDefine/CRC1/"
+  TumorST <- readr::read_rds("YourPath/TumorBoundary/1.BoundaryDefine/CRC1/TumorSTClustered.rds.gz")
+  TumorST <- STCNVScore(TumorST = TumorST, assay = "Spatial",
+                        OutDir = OutDir, Sample = Sample)
+  MalLabel <- c(1, 2)
+  TumorSTn <- BoundaryDefine(TumorST = TumorST, MalLabel = MalLabel,
+                             OutDir = OutDir, Sample = Sample)
+  TumorST <- BoundaryPlot(TumorSTn = TumorSTn, TumorST = TumorST,
+                          OutDir = OutDir, Sample = Sample)
+}
 
 }

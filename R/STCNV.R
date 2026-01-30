@@ -15,16 +15,23 @@
 #' @param Sample Name of your sample
 #' @param num_threads The number of cores used (default 30)
 #'
+#' @importFrom infercnv CreateInfercnvObject
+#' @importFrom SeuratObject LayerData
+#'
 #' @return A large CNV object
 #' @export
 #'
 #' @examples
-#' InDir <- paste(system.file("extdata/outs", package = "Cottrazm"), "/", sep = "")
-#' Sample <- "CRC1"
-#' OutDir <- "YourPath/TumorBoundary/Fig/1.BoundaryDefine/CRC1/"
-#' TumorST <- STPreProcess(InDir = InDir, OutDir = OutDir, Sample = Sample)
-#' TumorST <- STModiCluster(InDir = InDir, Sample = Sample, OutDir = OutDir, TumorST = TumorST, res = 1.5)
-#' STInferCNV <- STCNV(TumorST = TumorST, OutDir = OutDir, Sample = Sample,assay = "Spatial")
+#' \dontrun{
+#'   InDir <- paste(system.file("extdata/outs", package = "Cottrazm"), "/", sep = "")
+#'   Sample <- "CRC1"
+#'   OutDir <- "YourPath/TumorBoundary/Fig/1.BoundaryDefine/CRC1/"
+#'   TumorST <- STPreProcess(InDir = InDir, OutDir = OutDir, Sample = Sample)
+#'   TumorST <- STModiCluster(InDir = InDir, Sample = Sample, OutDir = OutDir,
+#'                            TumorST = TumorST, res = 1.5)
+#'   STInferCNV <- STCNV(TumorST = TumorST, OutDir = OutDir, Sample = Sample,
+#'                       assay = "Spatial")
+#' }
 #'
 STCNV <- function(TumorST = TumorST,
                   assay = c("Morph", "Spatial"),

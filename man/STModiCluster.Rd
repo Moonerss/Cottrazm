@@ -9,7 +9,8 @@ STModiCluster(
   Sample = Sample,
   OutDir = NULL,
   TumorST = TumorST,
-  res = 1.5
+  res = 1.5,
+  python_path = NULL
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ STModiCluster(
 \item{TumorST}{A Seurat object}
 
 \item{res}{Value of the resolution parameter}
+
+\item{python_path}{the path of python to run \code{stlearn} normalize}
 }
 \value{
 A Seurat object with morphological adjusted expression matrix and determined clusters
@@ -30,10 +33,13 @@ A Seurat object with morphological adjusted expression matrix and determined clu
 Grep HE staining information as Morphological matrix to adjusted gene expression matrix and use adjusted assay to cluster ST data
 }
 \examples{
-InDir <- paste(system.file("extdata/outs", package = "Cottrazm"), "/", sep = "")
-Sample <- "CRC1"
-OutDir <- "YourPath/TumorBoundary/Fig/1.BoundaryDefine/CRC1/"
-TumorST <- STPreProcess(InDir = InDir, OutDir = OutDir, Sample = Sample)
-TumorST <- STModiCluster(InDir = InDir, Sample = Sample, OutDir = OutDir, TumorST = TumorST, res = 1.5)
+\dontrun{
+  InDir <- paste(system.file("extdata/outs", package = "Cottrazm"), "/", sep = "")
+  Sample <- "CRC1"
+  OutDir <- "YourPath/TumorBoundary/Fig/1.BoundaryDefine/CRC1/"
+  TumorST <- STPreProcess(InDir = InDir, OutDir = OutDir, Sample = Sample)
+  TumorST <- STModiCluster(InDir = InDir, Sample = Sample, OutDir = OutDir,
+                           TumorST = TumorST, res = 1.5)
+}
 
 }

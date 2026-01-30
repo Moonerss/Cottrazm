@@ -27,10 +27,13 @@ A Seurat object of ST data with CNV sub-clusters and CNV scores
 add cnv score to ST Seurat object
 }
 \examples{
-TumorST <- readr::read_rds("YourPath/TumorBoundary/1.BoundaryDefine/CRC1/TumorSTClustered.rds.gz")
-OutDir <- "YourPath/TumorBoundary/Fig/1.BoundaryDefine/CRC1/"
-Sample <- "CRC1"
-assay = "Spatial"
-TumorST <- STCNVScore(TumorST = TumorST, assay = assay, OutDir = OutDir, Sample = Sample)
+\dontrun{
+  TumorST <- readRDS("YourPath/TumorBoundary/1.BoundaryDefine/CRC1/TumorSTClustered.rds.gz")
+  OutDir <- "YourPath/TumorBoundary/Fig/1.BoundaryDefine/CRC1/"
+  Sample <- "CRC1"
+  assay = "Spatial"
+  TumorST <- STCNVScore(TumorST = TumorST, assay = assay,
+                        OutDir = OutDir, Sample = Sample)
+}
 
 }

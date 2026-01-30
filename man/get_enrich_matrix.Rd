@@ -4,10 +4,7 @@
 \alias{get_enrich_matrix}
 \title{Title get enrich matrix}
 \usage{
-get_enrich_matrix(
-  filter_sig = filter_sig,
-  clustermarkers_list = clustermarkers_list
-)
+get_enrich_matrix(filter_sig, clustermarkers_list)
 }
 \arguments{
 \item{filter_sig}{The sig_exp filtered by features}
@@ -19,8 +16,4 @@ A binary matrix features as row, cell types as column
 }
 \description{
 Construct binary matrix for PAGE enrichment
-}
-\examples{
-enrich_matrix <- get_enrich_matrix(filter_sig = filter_sig,clustermarkers_list = clustermarkers_list)
-
 }

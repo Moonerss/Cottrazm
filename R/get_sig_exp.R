@@ -10,12 +10,14 @@
 #' @export
 #'
 #' @examples
-#' sig_exp <- get_sig_exp(se.obj = sc_obj,DefineTypes = "MajorTypes",sig_scran = unique(unlist(clustermarkers_list)))
-
+#' \dontrun{
+#'   sig_exp <- get_sig_exp(se.obj = sc_obj,DefineTypes = "MajorTypes",
+#'                          sig_scran = unique(unlist(clustermarkers_list)))
+#' }
 #'
-get_sig_exp <- function(se.obj = WholeTissueSC,
+get_sig_exp <- function(se.obj,
                         DefineTypes = "Majortypes",
-                        sig_scran = sig_scran # unique genes
+                        sig_scran
 ) {
 
   if (packageVersion('Seurat') >= '5.0.0') {

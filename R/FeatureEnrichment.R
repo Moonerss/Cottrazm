@@ -15,14 +15,18 @@
 #' @export
 #'
 #' @examples
-#' TumorST <- readr::read_rds("YourPath/TumorBoundary/1.BoundaryDefine/CRC1/TumorSTBoundaryDefine.rds.gz")
-#' DiffGenes <- FindDiffGenes(TumorST = TumorST, assay = "Spatial")
-#' BdyFeatureEnrich <- FeatureEnrichment(DiffGenes = DiffGenes, cut_off_logFC = 0.25, cut_off_pvalue = 0.05, Location = "Bdy")
+#' \dontrun{
+#'   TumorST <- readr::read_rds("YourPath/TumorSTBoundaryDefine.rds.gz")
+#'   DiffGenes <- FindDiffGenes(TumorST = TumorST, assay = "Spatial")
+#'   BdyFeatureEnrich <- FeatureEnrichment(DiffGenes = DiffGenes, cut_off_logFC = 0.25,
+#'                                         cut_off_pvalue = 0.05, Location = "Bdy")
+#' }
 #'
-FeatureEnrichment <- function(DiffGenes = DiffGenes,
+FeatureEnrichment <- function(DiffGenes,
                               cut_off_logFC = 0.25,
                               cut_off_pvalue = 0.05,
                               Location = c("Bdy", "Mal", "nMal")) {
+  check_pkgs('clusterProfiler')
 
   # get DiffGeneSig
   DiffGenesSig <- lapply(DiffGenes, function(sub) {
@@ -34,13 +38,13 @@ FeatureEnrichment <- function(DiffGenes = DiffGenes,
   Enrichment <- tibble::tibble(Location = Location)
   Enrichment <- Enrichment %>% dplyr::mutate(
     LocationDiffFeatures =
-      purrr::map(.x = Location, .f = function(.x) {
+      purrr::map(.x = .data$Location, .f = function(.x) {
         DiffGenesSig[[.x]]$Symbol
       })
   )
 
   # Goenrichment
-  Enrichment <- Enrichment %>% dplyr::mutate(GO = purrr::map(.x = LocationDiffFeatures, .f = function(.x) {
+  Enrichment <- Enrichment %>% dplyr::mutate(GO = purrr::map(.x = .data$LocationDiffFeatures, .f = function(.x) {
     GO <- clusterProfiler::enrichGO(
       gene = .x,
       keyType = "SYMBOL",
@@ -53,7 +57,7 @@ FeatureEnrichment <- function(DiffGenes = DiffGenes,
   }))
 
   # KEGGenrichment
-  Enrichment <- Enrichment %>% dplyr::mutate(KEGG = purrr::map(.x = LocationDiffFeatures, .f = function(.x) {
+  Enrichment <- Enrichment %>% dplyr::mutate(KEGG = purrr::map(.x = .data$LocationDiffFeatures, .f = function(.x) {
     geneL <- clusterProfiler::bitr(.x,
       fromType = "SYMBOL",
       toType = c("ENTREZID", "ENSEMBL"), OrgDb = "org.Hs.eg.db"

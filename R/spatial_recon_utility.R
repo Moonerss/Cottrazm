@@ -16,9 +16,9 @@ get_feature_weight <- function(filter_sig = filter_sig) {
 
 # title: get_obs
 # function: get each Boundary spot deconvolution data
-get_obs <- function(DeconData = DeconData, obs_ID = SubID) {
+get_obs <- function(DeconData, obs_ID) {
   obs <- tibble::tibble(cell_ID = DeconData[DeconData$cell_ID %in% obs_ID, ]$cell_ID) %>%
-    dplyr::mutate(Decon = purrr::map(.x = cell_ID, .f = function(.x) {
+    dplyr::mutate(Decon = purrr::map(.x = .data$cell_ID, .f = function(.x) {
       sub_Decon <- DeconData[DeconData$cell_ID == .x, ][, 2:ncol(DeconData)]
       sub_DeconF <- as.data.frame(sub_Decon[, colnames(sub_Decon)[which(sub_Decon > 0)]])
       if (ncol(sub_DeconF) == 1) {
@@ -68,7 +68,7 @@ get_recon_mtx <- function(TumorST = TumorST,
 
   # subset mtx
   mtx <- c()
-  pb <- txtProgressBar(style = 3)
+  pb <- utils::txtProgressBar(style = 3)
   for (i in 1:length(obs$cell_ID)) {
     spot <- obs$cell_ID[i]
     # get fraction of sub_matrix
@@ -92,7 +92,7 @@ get_recon_mtx <- function(TumorST = TumorST,
 
     mtx <- cbind(mtx, sub_matrix)
     # print(i)
-    setTxtProgressBar(pb, i / length(obs$cell_ID))
+    utils::setTxtProgressBar(pb, i / length(obs$cell_ID))
   }
 
   end_time <- Sys.time()

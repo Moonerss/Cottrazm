@@ -4,7 +4,7 @@
 \alias{DeconBarplot}
 \title{Title Bar plot of deconvolution result}
 \usage{
-DeconBarplot(DeconData = DeconData, TumorST = TumorST, plot_col = plot_col)
+DeconBarplot(DeconData, TumorST, plot_col)
 }
 \arguments{
 \item{DeconData}{A data frame of deconvolution result of each spatial spot}
@@ -20,9 +20,11 @@ A ggplot object
 Bar plot of deconvolution result in location groups
 }
 \examples{
-TumorST <- readr::read_rds("YourPath/TumorBoundary/1.BoundaryDefine/CRC1/TumorSTBoundaryDefine.rds.gz")
-DeconData <- oepnxlsx::read.xlsx(system.file("extdata/DeconData.xlsx", package = "Cottrazm"))
-plot_col <- colnames(DeconData)[2:ncol(DeconData)]
-DeconBarplot(DeconData = DeconData, TumorST = TumorST, plot_col = plot_col)
+\dontrun{
+  TumorST <- readr::read_rds("YourPath/TumorSTBoundaryDefine.rds.gz")
+  DeconData <- oepnxlsx::read.xlsx(system.file("extdata/DeconData.xlsx", package = "Cottrazm"))
+  plot_col <- colnames(DeconData)[2:ncol(DeconData)]
+  DeconBarplot(DeconData = DeconData, TumorST = TumorST, plot_col = plot_col)
+}
 
 }

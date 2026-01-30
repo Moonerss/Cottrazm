@@ -8,7 +8,8 @@ STCNV(
   TumorST = TumorST,
   assay = c("Morph", "Spatial"),
   OutDir = NULL,
-  Sample = Sample
+  Sample = Sample,
+  num_threads = 30
 )
 }
 \arguments{
@@ -19,6 +20,8 @@ STCNV(
 \item{OutDir}{Path to file save infercnv results}
 
 \item{Sample}{Name of your sample}
+
+\item{num_threads}{The number of cores used (default 30)}
 }
 \value{
 A large CNV object
@@ -27,11 +30,15 @@ A large CNV object
 Run infercnv of clustered Seurat object of tumor ST data
 }
 \examples{
-InDir <- paste(system.file("extdata/outs", package = "Cottrazm"), "/", sep = "")
-Sample <- "CRC1"
-OutDir <- "YourPath/TumorBoundary/Fig/1.BoundaryDefine/CRC1/"
-TumorST <- STPreProcess(InDir = InDir, OutDir = OutDir, Sample = Sample)
-TumorST <- STModiCluster(InDir = InDir, Sample = Sample, OutDir = OutDir, TumorST = TumorST, res = 1.5)
-STInferCNV <- STCNV(TumorST = TumorST, OutDir = OutDir, Sample = Sample,assay = "Spatial")
+\dontrun{
+  InDir <- paste(system.file("extdata/outs", package = "Cottrazm"), "/", sep = "")
+  Sample <- "CRC1"
+  OutDir <- "YourPath/TumorBoundary/Fig/1.BoundaryDefine/CRC1/"
+  TumorST <- STPreProcess(InDir = InDir, OutDir = OutDir, Sample = Sample)
+  TumorST <- STModiCluster(InDir = InDir, Sample = Sample, OutDir = OutDir,
+                           TumorST = TumorST, res = 1.5)
+  STInferCNV <- STCNV(TumorST = TumorST, OutDir = OutDir, Sample = Sample,
+                      assay = "Spatial")
+}
 
 }

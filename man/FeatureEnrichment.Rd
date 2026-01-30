@@ -5,7 +5,7 @@
 \title{Title Enrichment analysis of features of different locations}
 \usage{
 FeatureEnrichment(
-  DiffGenes = DiffGenes,
+  DiffGenes,
   cut_off_logFC = 0.25,
   cut_off_pvalue = 0.05,
   Location = c("Bdy", "Mal", "nMal")
@@ -27,8 +27,11 @@ A tibble contain KEGG and GO enrichment result
 Use differential expressed genes of location to define the KEGG and GO pathway these DEG enriched.
 }
 \examples{
-TumorST <- readr::read_rds("YourPath/TumorBoundary/1.BoundaryDefine/CRC1/TumorSTBoundaryDefine.rds.gz")
-DiffGenes <- FindDiffGenes(TumorST = TumorST, assay = "Spatial")
-BdyFeatureEnrich <- FeatureEnrichment(DiffGenes = DiffGenes, cut_off_logFC = 0.25, cut_off_pvalue = 0.05, Location = "Bdy")
+\dontrun{
+  TumorST <- readr::read_rds("YourPath/TumorSTBoundaryDefine.rds.gz")
+  DiffGenes <- FindDiffGenes(TumorST = TumorST, assay = "Spatial")
+  BdyFeatureEnrich <- FeatureEnrichment(DiffGenes = DiffGenes, cut_off_logFC = 0.25,
+                                        cut_off_pvalue = 0.05, Location = "Bdy")
+}
 
 }

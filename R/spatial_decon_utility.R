@@ -31,7 +31,7 @@ solve_OLS_internal <- function(S,
   bzero <- c(rep(0, dim(S)[2]))
   sc <- norm(D, "2")
 
-  pd_D_mat <- nearPD(D / sc)
+  pd_D_mat <- Matrix::nearPD(D / sc)
   solution <- quadprog::solve.QP(as.matrix(pd_D_mat$mat), d / sc, A, bzero)$solution
   #solution <- quadprog::solve.QP(D, d, A, bzero)$solution
   names(solution) <- colnames(S)
@@ -119,7 +119,7 @@ solve_dampened_WLSj <- function(S,
   bzero <- c(rep(0, dim(S)[2]))
   sc <- norm(D, "2")
 
-  pd_D_mat <- nearPD(D / sc)
+  pd_D_mat <- Matrix::nearPD(D / sc)
   solution <- quadprog::solve.QP(as.matrix(pd_D_mat$mat), d / sc, A, bzero)$solution
   #solution <- quadprog::solve.QP(D / sc, d / sc, A, bzero)$solution
   names(solution) <- colnames(S)
@@ -144,7 +144,7 @@ spot_proportion_initial <- function(enrich_matrix = enrich_matrix,
 
   # signature score cutoff and signature score selected cell types
   ct_sig0 <- lapply(names(clustermarkers_list), function(cluster) {
-    cutoff_sig <- quantile(meta_data[, cluster], 0.75)
+    cutoff_sig <- stats::quantile(meta_data[, cluster], 0.75)
     test <- as.data.frame(do.call(rbind, lapply(topic_sort, function(topic) {
       topic_qun <- median(meta_data[meta_data$Decon_topics == topic, ][, cluster])
     })))
@@ -158,7 +158,7 @@ spot_proportion_initial <- function(enrich_matrix = enrich_matrix,
   # calculate enrichment scroe cutoff
   cutoff_enrich <- lapply(rownames(enrich_result), function(cluster) {
     cluster_enrich <- enrich_result[cluster, ]
-    cluster_enrichF <- quantile(cluster_enrich[cluster_enrich > 0], 0.75)
+    cluster_enrichF <- stats::quantile(cluster_enrich[cluster_enrich > 0], 0.75)
     return(cluster_enrichF)
   }) %>% unlist()
   names(cutoff_enrich) <- rownames(enrich_result)
@@ -226,7 +226,7 @@ spot_proportion_initial <- function(enrich_matrix = enrich_matrix,
     }
 
     # na.omit and print-check
-    ct <- as.character(na.omit(ct))
+    ct <- as.character(stats::na.omit(ct))
     print(as.character(topic_sort[i]))
     print(ct)
 
