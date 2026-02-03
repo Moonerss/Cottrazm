@@ -49,7 +49,12 @@ STPreProcess <- function(InDir = InDir, Sample = Sample, OutDir = NULL) {
     XF <- CreateSeuratObject(counts = Xdata, project = Sample, min.spots = 0, assay = "Spatial")
   }
   # read image filesa
-  Ximage <- Read10X_Image(image.dir = file.path(InDir, "spatial"))
+  if (packageVersion('Seurat') >= '5.0.0') {
+    Ximage <- Read10X_Image(image.dir = file.path(InDir, "spatial"), image.type = 'VisiumV1')
+  } else {
+    Ximage <- Read10X_Image(image.dir = file.path(InDir, "spatial"))
+  }
+
   DefaultAssay(Ximage) <- "Spatial"
   # link matrix and image file
   Ximage <- Ximage[colnames(XF)]

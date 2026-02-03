@@ -61,7 +61,7 @@ BoundaryPlot <- function(TumorSTn = TumorSTn,
 
   Normal_Bdy_barcode <- unique(unlist(nbrs(df_j = df_j, MalCellIDAdd = Mal_barcode, CellIDRaw = c(Bdy_barcode, Mal_barcode))))
 
-  nMal_barcode <- rownames(TumorST@meta.data) %>% .data[!.data %in% c(Mal_barcode, Bdy_barcode, Normal_Bdy_barcode)]
+  nMal_barcode <- rownames(TumorST@meta.data)[!(rownames(TumorST@meta.data) %in% c(Mal_barcode, Bdy_barcode, Normal_Bdy_barcode))]
 
   Barcode_Ann <- data.frame(
     barcode = c(Mal_barcode, Bdy_barcode, Normal_Bdy_barcode, nMal_barcode),
@@ -84,7 +84,7 @@ BoundaryPlot <- function(TumorSTn = TumorSTn,
     scale_fill_manual(values = TumorST_DefineColors$colors )
   ggsave(p, filename = file.path(OutDir, '5_Boundary', paste0(Sample, "_BoundaryDefine.pdf")), width = 7, height = 7)
 
-  saveRDS(TumorST, file.path(OutDir, '5_Boundary', paste0(Sample, "_BoundaryDefine.rds.gz")), compress = "gz")
+  saveRDS(TumorST, file.path(OutDir, '5_Boundary', paste0(Sample, "_BoundaryDefine.rds.gz")), compress = "gzip")
 
   return(TumorST)
 }
