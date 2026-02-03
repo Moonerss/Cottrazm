@@ -17,6 +17,7 @@ Suggests:
     jpeg,
     knitr,
     png,
+    quarto,
     renv,
     rmarkdown,
     scatterpie,
@@ -39,3 +40,4 @@ Imports:
     SeuratObject,
     stringr,
     tibble
+VignetteBuilder: quarto
